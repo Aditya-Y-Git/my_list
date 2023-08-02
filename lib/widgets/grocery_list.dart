@@ -12,6 +12,8 @@ class GroceryList extends StatefulWidget {
 
 class _GroceryListState extends State<GroceryList> {
   final List<GroceryItem> _groceryItmes = [];
+  final url = Uri.https(
+      'shopping-list-c5127-default-rtdb.firebaseio.com', 'shopping-list.json');
 
   void _addItem() async {
     final newItem =
@@ -28,28 +30,40 @@ class _GroceryListState extends State<GroceryList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopping List'),
-        actions: [
-          IconButton(
-            onPressed: _addItem,
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: _groceryItmes.length,
-        itemBuilder: (context, index) => ListTile(
-          title: Text(_groceryItmes[index].name),
-          leading: Container(
-            height: 20,
-            width: 20,
-            color: _groceryItmes[index].category.color,
-          ),
-          trailing: Text(_groceryItmes[index].quantity.toString()),
+    Widget content = ListView.builder(
+      itemCount: _groceryItmes.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(_groceryItmes[index].name),
+        leading: Container(
+          height: 20,
+          width: 20,
+          color: _groceryItmes[index].category.color,
         ),
+        trailing: Text(_groceryItmes[index].quantity.toString()),
       ),
     );
+
+    if (_groceryItmes.isEmpty) {
+      content = Center(
+        child: Text(
+          'No items. Add new items!',
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+        ),
+      );
+    }
+
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Shopping List'),
+          actions: [
+            IconButton(
+              onPressed: _addItem,
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        body: content);
   }
 }
