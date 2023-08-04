@@ -69,13 +69,44 @@ class _GroceryListState extends State<GroceryList> {
     });
   }
 
-  void _removeItem(GroceryItem item) {
-// final url = Uri.https('shopping-list-c5127-default-rtdb.firebaseio.com',
-//         'shopping-list.json');
-//     http.delete(url, )
+  void _removeItem(GroceryItem item) async {
+    final index = _groceryItmes.indexOf(item);
+    var removeError = false;
+
     setState(() {
       _groceryItmes.remove(item);
     });
+
+    final url = Uri.https('shopping-list-c5127-default-rtdb.firebaseio.com',
+        'shopping-list/${item.id}.json');
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _groceryItmes.insert(index, item);
+        removeError = true;
+      });
+    }
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: removeError
+          ? Text(
+              '${item.name} can\'t be removed. Try again later.',
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+            )
+          : Text(
+              '${item.name} have been Removed',
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+            ),
+      duration: const Duration(seconds: 3),
+    ));
   }
 
   @override
